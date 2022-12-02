@@ -4,7 +4,7 @@ const User =require('./user')
 const formidable = require('formidable');
 
 try {
-     mongoose.connect('mongodb+srv://admin:1234@cluster0.kfowgwb.mongodb.net/database', {
+    mongoose.connect('mongodb+srv://admin:1234@cluster0.kfowgwb.mongodb.net/database', {
         useNewUrlParser:true,
         useUnifiedTopology:true
     })
@@ -14,11 +14,9 @@ try {
     throw new Error("sumakina da error nmm")
 }
 
-app = express()
-
+const app = express()
 app.use(express.static('public'))
 app.use(express.json())
-
 
 
 app.post('/resrol', async(req, res)=>{
@@ -34,7 +32,7 @@ app.post('/resrol', async(req, res)=>{
                 pass:fields.contraseña
             })
             await r.save()
-            .then(async() =>{
+            .then(() =>{
                 console.log("YES")
                 res.redirect('/')
             })
@@ -44,6 +42,36 @@ app.post('/resrol', async(req, res)=>{
             });
         }
     })
+})
+
+app.get('/resmod/:em/:mod', async (req, res) => {
+    const ema=req.params.em
+    const uid= await User.find({email:ema})
+    if(!uid){
+        throw new Error(`esa chingadera no la quiero: ${ema} `)
+    }else{
+        const ps=req.params.mod
+        if (uid[0].pass != ps) {
+            await User.findOneAndUpdate(uid[0]._id,{pass:ps}, {new:true})
+            console.log("actualizado");
+        }else{
+            console.log("no actualizado");
+        }
+    }
+    res.redirect('/')
+})
+
+app.get('/resdel/:em', async (req, res) => {
+    const ema=req.params.em
+    const uid= await User.find({email:ema})
+    if(!uid){
+        throw new Error(`esa chingadera no la quiero: ${ema} `)
+    }else{
+        await User.findByIdAndDelete(uid[0]._id).then(()=>{
+            console.log("eliminado");
+        })
+    }
+    res.redirect('/')
 })
 
 app.listen("8082", () => {
