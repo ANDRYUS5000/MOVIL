@@ -11,5 +11,5 @@ const User=Schema({
         require:true
     },
 })
-
+//Moduele
 module.exports=model('Usuario', User)
